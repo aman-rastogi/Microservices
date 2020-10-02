@@ -1,7 +1,6 @@
-package models;
+package com.mylearnings.ratingsdataservice.models;
 
 public class Rating {
-
     private String movieId;
     private int rating;
 

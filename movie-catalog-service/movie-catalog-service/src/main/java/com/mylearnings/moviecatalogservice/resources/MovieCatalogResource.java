@@ -3,6 +3,8 @@ package com.mylearnings.moviecatalogservice.resources;
 import com.mylearnings.moviecatalogservice.models.CatalogItem;
 import com.mylearnings.moviecatalogservice.models.Movie;
 import com.mylearnings.moviecatalogservice.models.Rating;
+import com.mylearnings.moviecatalogservice.models.UserRating;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.reactive.ClientHttpConnector;
@@ -39,28 +41,29 @@ public class MovieCatalogResource {
     public List<CatalogItem> getCatalog(@PathVariable("userId") String userId){
 
         //get all rated movie IDs
-        List<Rating> ratings = Arrays.asList(
+      /*  List<Rating> ratings = Arrays.asList(
           new Rating("1234",4),
           new Rating("5678",3)
-        );
+        );*/
 
+        UserRating ratings = restTemplate.getForObject("http://localhost:8083/ratingsdata/users/"+ userId,
+                UserRating.class);
 
         // For each movie ID, call movie info service and get details
-        return ratings.stream().map(rating -> {
-            //Movie movie = restTemplate.getForObject("http://localhost:8082/movies/" + rating.getMovieId(), Movie.class);
+        return ratings.getUserRating().stream().map(rating -> {
+            Movie movie = restTemplate.getForObject("http://localhost:8082/movies/" + rating.getMovieId(),
+                    Movie.class);
             //Modifying the code from RestTemplate to WebClient(Reactive)
 
-            Movie movie = webClientBuilder.build()
+            /*Movie movie = webClientBuilder.build()
                     .get()
                     .uri("http://localhost:8082/movies/" + rating.getMovieId())
                     .retrieve()
                     .bodyToMono(Movie.class)
                     .block();
+*/      //Put them all together
 
             return new CatalogItem(movie.getName(), "Desc", rating.getRating());
         }).collect(Collectors.toList());
-
-        //Put them all together
-
     }
 }
